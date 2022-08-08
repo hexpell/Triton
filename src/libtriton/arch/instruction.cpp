@@ -22,6 +22,7 @@ namespace triton {
       this->arch            = triton::arch::ARCH_INVALID;
       this->branch          = false;
       this->codeCondition   = triton::arch::arm::ID_CONDITION_INVALID;
+      this->conditional     = false;
       this->conditionTaken  = 0;
       this->controlFlow     = false;
       this->prefix          = triton::arch::x86::ID_PREFIX_INVALID;
@@ -76,6 +77,7 @@ namespace triton {
       this->arch                = other.arch;
       this->branch              = other.branch;
       this->codeCondition       = other.codeCondition;
+      this->conditional         = other.conditional;
       this->conditionTaken      = other.conditionTaken;
       this->controlFlow         = other.controlFlow;
       this->loadAccess          = other.loadAccess;
@@ -373,6 +375,11 @@ namespace triton {
     }
 
 
+    bool Instruction::isConditional(void) const {
+      return this->conditional;
+    }
+
+
     bool Instruction::isConditionTaken(void) const {
       return this->conditionTaken;
     }
@@ -511,6 +518,7 @@ namespace triton {
 
 
     void Instruction::setConditionTaken(bool flag) {
+      this->conditional = true;
       this->conditionTaken = flag;
     }
 
@@ -519,6 +527,7 @@ namespace triton {
       this->address         = 0;
       this->branch          = false;
       this->codeCondition   = triton::arch::arm::ID_CONDITION_INVALID;
+      this->conditional     = false;
       this->conditionTaken  = 0;
       this->controlFlow     = false;
       this->prefix          = triton::arch::x86::ID_PREFIX_INVALID;
