@@ -196,6 +196,9 @@ Returns a list of tuples <\ref py_Register_page, \ref py_AstNode_page> which rep
 - <b>bool isBranch(void)</b><br>
 Returns true if the instruction is a branch (i.e x86: JUMP, JCC).
 
+- <b>bool isConditional(void)</b><br>
+Returns true if the instruction is conditional on other CPU flags (i.e x86: JCC, CMOVCC, SETCC, ...).
+
 - <b>bool isConditionTaken(void)</b><br>
 Returns true if the condition is taken (i.e x86: JCC, CMOVCC, SETCC, ...).
 
@@ -549,6 +552,18 @@ namespace triton {
       }
 
 
+      static PyObject* Instruction_isConditional(PyObject* self, PyObject* noarg) {
+        try {
+          if (PyInstruction_AsInstruction(self)->isConditional() == true)
+            Py_RETURN_TRUE;
+          Py_RETURN_FALSE;
+        }
+        catch (const triton::exceptions::Exception& e) {
+          return PyErr_Format(PyExc_TypeError, "%s", e.what());
+        }
+      }
+
+
       static PyObject* Instruction_isConditionTaken(PyObject* self, PyObject* noarg) {
         try {
           if (PyInstruction_AsInstruction(self)->isConditionTaken() == true)
@@ -754,6 +769,7 @@ namespace triton {
         {"getUndefinedRegisters",     Instruction_getUndefinedRegisters,    METH_NOARGS,     ""},
         {"getWrittenRegisters",       Instruction_getWrittenRegisters,      METH_NOARGS,     ""},
         {"isBranch",                  Instruction_isBranch,                 METH_NOARGS,     ""},
+        {"isConditional",             Instruction_isConditional,            METH_NOARGS,     ""},
         {"isConditionTaken",          Instruction_isConditionTaken,         METH_NOARGS,     ""},
         {"isControlFlow",             Instruction_isControlFlow,            METH_NOARGS,     ""},
         {"isMemoryRead",              Instruction_isMemoryRead,             METH_NOARGS,     ""},

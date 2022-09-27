@@ -4190,10 +4190,12 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken(op3->evaluate().is_zero() && op4->evaluate().is_zero());
+        
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(this->astCtxt->bvand(this->astCtxt->bvnot(op3), this->astCtxt->bvnot(op4)), this->astCtxt->bvtrue()), op2, op1);
@@ -4202,9 +4204,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVA operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero() && op4->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4223,9 +4224,11 @@ namespace triton {
         auto  cf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_CF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
+        inst.setConditionTaken(op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvfalse()), op2, op1);
@@ -4234,9 +4237,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVAE operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4255,9 +4257,11 @@ namespace triton {
         auto  cf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_CF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
+        inst.setConditionTaken(!op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvtrue()), op2, op1);
@@ -4266,9 +4270,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVB operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4288,10 +4291,12 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken(!op3->evaluate().is_zero() || !op4->evaluate().is_zero());
+
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(this->astCtxt->bvor(op3, op4), this->astCtxt->bvtrue()), op2, op1);
@@ -4300,9 +4305,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVBE operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero() || !op4->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4321,9 +4325,11 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken(!op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvtrue()), op2, op1);
@@ -4332,9 +4338,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVE operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4355,11 +4360,13 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, of);
         auto op5 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken((op3->evaluate().is_zero() == op4->evaluate().is_zero()) && op5->evaluate().is_zero());
+
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(this->astCtxt->bvor(this->astCtxt->bvxor(op3, op4), op5), this->astCtxt->bvfalse()), op2, op1);
@@ -4368,9 +4375,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVG operation");
 
         /* Spread taint and condition flag */
-        if ((op3->evaluate().is_zero() == op4->evaluate().is_zero()) && op5->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4390,10 +4396,13 @@ namespace triton {
         auto  of  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_OF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, of);
+        inst.setConditionTaken(op3->evaluate().is_zero() == op4->evaluate().is_zero());
+
+
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, op4), op2, op1);
@@ -4402,7 +4411,7 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVGE operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero() == op4->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
           inst.setConditionTaken(true);
         }
@@ -4424,10 +4433,12 @@ namespace triton {
         auto  of  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_OF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, of);
+        inst.setConditionTaken(op3->evaluate().is_zero() != op4->evaluate().is_zero());
+
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(this->astCtxt->bvxor(op3, op4), this->astCtxt->bvtrue()), op2, op1);
@@ -4436,7 +4447,7 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVL operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero() != op4->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
           inst.setConditionTaken(true);
         }
@@ -4460,11 +4471,13 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
-        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
-        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
         auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op4 = this->symbolicEngine->getOperandAst(inst, of);
         auto op5 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken((op3->evaluate().is_zero() != op4->evaluate().is_zero()) || !op5->evaluate().is_zero());
+        
+        auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
+        auto op2 = this->symbolicEngine->getOperandAst(inst, src);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(this->astCtxt->bvor(this->astCtxt->bvxor(op3, op4), op5), this->astCtxt->bvtrue()), op2, op1);
@@ -4473,9 +4486,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVBE operation");
 
         /* Spread taint and condition flag */
-        if ((op3->evaluate().is_zero() != op4->evaluate().is_zero()) || !op5->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4494,9 +4506,11 @@ namespace triton {
         auto  zf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_ZF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
+        inst.setConditionTaken(op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvfalse()), op2, op1);
@@ -4505,9 +4519,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVNE operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4526,9 +4539,11 @@ namespace triton {
         auto  of  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_OF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, of);
+        inst.setConditionTaken(op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, of);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvfalse()), op2, op1);
@@ -4537,9 +4552,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVNO operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4558,9 +4572,11 @@ namespace triton {
         auto  pf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_PF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, pf);
+        inst.setConditionTaken(op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, pf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvfalse()), op2, op1);
@@ -4569,9 +4585,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVNP operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4590,9 +4605,11 @@ namespace triton {
         auto  sf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_SF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
+        inst.setConditionTaken(op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvfalse()), op2, op1);
@@ -4601,9 +4618,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVNS operation");
 
         /* Spread taint and condition flag */
-        if (op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4622,9 +4638,11 @@ namespace triton {
         auto  of  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_OF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, of);
+        inst.setConditionTaken(!op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, of);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvtrue()), op2, op1);
@@ -4633,9 +4651,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVO operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4654,9 +4671,11 @@ namespace triton {
         auto  pf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_PF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, pf);
+        inst.setConditionTaken(!op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, pf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvtrue()), op2, op1);
@@ -4665,9 +4684,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVP operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -4686,9 +4704,11 @@ namespace triton {
         auto  sf  = triton::arch::OperandWrapper(this->architecture->getRegister(ID_REG_X86_SF));
 
         /* Create symbolic operands */
+        auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
+        inst.setConditionTaken(!op3->evaluate().is_zero());
+
         auto op1 = this->symbolicEngine->getOperandAst(inst, dst);
         auto op2 = this->symbolicEngine->getOperandAst(inst, src);
-        auto op3 = this->symbolicEngine->getOperandAst(inst, sf);
 
         /* Create the semantics */
         auto node = this->astCtxt->ite(this->astCtxt->equal(op3, this->astCtxt->bvtrue()), op2, op1);
@@ -4697,9 +4717,8 @@ namespace triton {
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "CMOVS operation");
 
         /* Spread taint and condition flag */
-        if (!op3->evaluate().is_zero()) {
+        if (inst.isConditionTaken()) {
           expr->isTainted = this->taintEngine->taintAssignment(dst, src);
-          inst.setConditionTaken(true);
         }
         else {
           expr->isTainted = this->taintEngine->taintUnion(dst, dst);
@@ -7419,6 +7438,10 @@ namespace triton {
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero() && op2->evaluate().is_zero());
+
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7434,10 +7457,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero() && op2->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, cf);
@@ -7456,6 +7475,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, cf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7464,10 +7487,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, cf);
@@ -7485,6 +7504,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, cf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7493,10 +7516,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, cf);
@@ -7516,6 +7535,10 @@ namespace triton {
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero() || !op2->evaluate().is_zero());
+
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7524,10 +7547,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero() || !op2->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, cf);
@@ -7546,6 +7565,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, cx);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7553,10 +7576,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, cx);
@@ -7574,6 +7593,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7582,10 +7605,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, zf);
@@ -7603,6 +7622,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, ecx);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7610,10 +7633,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, ecx);
@@ -7635,6 +7654,10 @@ namespace triton {
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
         auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken((op1->evaluate().is_zero() == op2->evaluate().is_zero()) && op3->evaluate().is_zero());
+
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op5 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7643,10 +7666,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if ((op1->evaluate().is_zero() == op2->evaluate().is_zero()) && op3->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -7668,6 +7687,10 @@ namespace triton {
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero() == op2->evaluate().is_zero());
+
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7676,10 +7699,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero() == op2->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -7700,6 +7719,10 @@ namespace triton {
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero() != op2->evaluate().is_zero());
+
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7708,10 +7731,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero() != op2->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -7734,6 +7753,10 @@ namespace triton {
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
         auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken((op1->evaluate().is_zero() != op2->evaluate().is_zero()) || !op3->evaluate().is_zero());
+
         auto op4 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op5 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7742,10 +7765,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if ((op1->evaluate().is_zero() != op2->evaluate().is_zero()) || !op3->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -7770,9 +7789,6 @@ namespace triton {
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
 
-        /* Set condition flag */
-        inst.setConditionTaken(true);
-
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, src);
 
@@ -7789,6 +7805,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, zf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7797,10 +7817,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, zf);
@@ -7818,6 +7834,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, of);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7826,10 +7846,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, of);
@@ -7847,6 +7863,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, pf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7855,10 +7875,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, pf);
@@ -7876,6 +7892,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7884,10 +7904,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -7905,6 +7921,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, of);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7913,10 +7933,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, of);
@@ -7934,6 +7950,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, pf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7942,10 +7962,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, pf);
@@ -7963,6 +7979,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, rcx);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7970,10 +7990,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, rcx);
@@ -7991,6 +8007,10 @@ namespace triton {
 
         /* Create symbolic operands */
         auto op1 = this->symbolicEngine->getOperandAst(inst, sf);
+
+        /* Set condition flag */
+        inst.setConditionTaken(!op1->evaluate().is_zero());
+
         auto op2 = this->symbolicEngine->getOperandAst(inst, srcImm1);
         auto op3 = this->symbolicEngine->getOperandAst(inst, srcImm2);
 
@@ -7999,10 +8019,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, pc, "Program Counter");
-
-        /* Set condition flag */
-        if (!op1->evaluate().is_zero())
-          inst.setConditionTaken(true);
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(pc, sf);
@@ -14862,6 +14878,9 @@ namespace triton {
         auto op2 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero() && op3->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(
@@ -14877,11 +14896,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETA operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero() && op3->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, cf);
@@ -14899,6 +14913,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, cf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvfalse()),
@@ -14908,11 +14925,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETAE operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, cf);
@@ -14929,6 +14941,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, cf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvtrue()),
@@ -14938,11 +14953,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETB operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, cf);
@@ -14961,6 +14971,9 @@ namespace triton {
         auto op2 = this->symbolicEngine->getOperandAst(inst, cf);
         auto op3 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero() || !op3->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(this->astCtxt->bvor(op2, op3), this->astCtxt->bvtrue()),
@@ -14970,11 +14983,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETBE operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero() || !op3->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, cf);
@@ -14992,6 +15000,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvtrue()),
@@ -15001,11 +15012,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETE operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, zf);
@@ -15026,6 +15032,9 @@ namespace triton {
         auto op3 = this->symbolicEngine->getOperandAst(inst, of);
         auto op4 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken((op2->evaluate().is_zero() == op3->evaluate().is_zero()) && op4->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(this->astCtxt->bvor(this->astCtxt->bvxor(op2, op3), op4), this->astCtxt->bvfalse()),
@@ -15035,11 +15044,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETG operation");
-
-        /* Set condition flag */
-        if ((op2->evaluate().is_zero() == op3->evaluate().is_zero()) && op4->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);
@@ -15060,6 +15064,9 @@ namespace triton {
         auto op2 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op3 = this->symbolicEngine->getOperandAst(inst, of);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero() == op3->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, op3),
@@ -15069,11 +15076,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETGE operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero() == op3->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);
@@ -15093,6 +15095,9 @@ namespace triton {
         auto op2 = this->symbolicEngine->getOperandAst(inst, sf);
         auto op3 = this->symbolicEngine->getOperandAst(inst, of);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero() != op3->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(this->astCtxt->bvxor(op2, op3), this->astCtxt->bvtrue()),
@@ -15102,11 +15107,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETL operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero() != op3->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);
@@ -15128,6 +15128,9 @@ namespace triton {
         auto op3 = this->symbolicEngine->getOperandAst(inst, of);
         auto op4 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken((op2->evaluate().is_zero() != op3->evaluate().is_zero()) || !op4->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(this->astCtxt->bvor(this->astCtxt->bvxor(op2, op3), op4), this->astCtxt->bvtrue()),
@@ -15137,11 +15140,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETLE operation");
-
-        /* Set condition flag */
-        if ((op2->evaluate().is_zero() != op3->evaluate().is_zero()) || !op4->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);
@@ -15160,6 +15158,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, zf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvfalse()),
@@ -15169,11 +15170,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETNE operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, zf);
@@ -15190,6 +15186,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvfalse()),
@@ -15199,11 +15198,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETNO operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, of);
@@ -15220,6 +15214,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, pf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvfalse()),
@@ -15229,11 +15226,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETNP operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, pf);
@@ -15250,6 +15242,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, sf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvfalse()),
@@ -15259,11 +15254,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETNS operation");
-
-        /* Set condition flag */
-        if (op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);
@@ -15280,6 +15270,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, of);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvtrue()),
@@ -15289,11 +15282,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETO operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, of);
@@ -15310,6 +15298,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, pf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvtrue()),
@@ -15319,11 +15310,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETP operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, pf);
@@ -15340,6 +15326,9 @@ namespace triton {
         /* Create symbolic operands */
         auto op2 = this->symbolicEngine->getOperandAst(inst, sf);
 
+        /* Set condition flag */
+        inst.setConditionTaken(!op2->evaluate().is_zero());
+
         /* Create the semantics */
         auto node = this->astCtxt->ite(
                       this->astCtxt->equal(op2, this->astCtxt->bvtrue()),
@@ -15349,11 +15338,6 @@ namespace triton {
 
         /* Create symbolic expression */
         auto expr = this->symbolicEngine->createSymbolicExpression(inst, node, dst, "SETS operation");
-
-        /* Set condition flag */
-        if (!op2->evaluate().is_zero()) {
-          inst.setConditionTaken(true);
-        }
 
         /* Spread taint */
         expr->isTainted = this->taintEngine->taintAssignment(dst, sf);

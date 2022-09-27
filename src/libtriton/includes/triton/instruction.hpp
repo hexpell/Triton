@@ -98,6 +98,9 @@ namespace triton {
         //! True if this instruction changes the control flow. This field is set at the disassembly level.
         bool controlFlow;
 
+        //! True if this instruction is conditional on CPU flags (e.g. CMOVcc, FCMOVcc, Jcc, LOOPcc, SETcc, ...). This field is set at the semantics level.
+        bool conditional;
+
         //! True if the condition is taken (i.g x86: jcc, cmocc, setcc, ...). This field is set at the semantics level.
         bool conditionTaken;
 
@@ -276,6 +279,9 @@ namespace triton {
 
         //! Returns true if this instruction changes the control flow (e.g x86: JMP, JCC, CALL, RET, ...)
         TRITON_EXPORT bool isControlFlow(void) const;
+
+        //! Returns true if the instruction is conditional on CPU flags (e.g. CMOVcc, FCMOVcc, Jcc, LOOPcc, SETcc, ...)
+        TRITON_EXPORT bool isConditional(void) const;
 
         //! Returns true if the condition is taken (e.g x86: jcc, cmovcc, setcc, ...).
         TRITON_EXPORT bool isConditionTaken(void) const;
